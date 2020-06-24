@@ -7,15 +7,34 @@ const apiEndpoint = 'http://localhost:9000/';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { apiResponse: "" };
+    var now = new Date();
+    this.state = { 
+      apiResponse: ""
+      , formErrorMessage: "" 
+      , formData: {
+        date: now.toLocaleDateString('en-GB')
+        , time: now.toLocaleTimeString('en-US').replace(/:\d\d /, ' ')
+        , location: ''
+        , duck_count: 1
+        , food_amount: ''
+        , food_type: ''
+      }
+    };
     
     this.errorMessage = '';
+  }
+
+  
+  handleChange = (event) => {
+    var formData = this.state.formData;
+    formData[event.target.name] = event.target.value;
+    this.setState({ 'formData': formData });
   }
 
   callAPI() {
     fetch(apiEndpoint)
       .then(res => res.text())
-      .then(res => this.setState({ apiResponse: res }));
+      .then(res => this.setState({ apiResponse: res}));
   }
 
   componentWillMount() {
@@ -31,30 +50,36 @@ class App extends Component {
             {this.state.apiResponse}
           </p>
           <form id="FeedDucksForm" action="#" onSubmit={this.addFeeding} method="post">
-            {this.errorMessage}
+            <div class="form-error"> {this.state.formErrorMessage}</div>
             <div>
-              <label for="FeedDucksDate">Date</label>
-              <input id="FeedDucksDate" type="text" name="date" />
+              <label> Date
+                <input value={this.state.formData.date} id="FeedDucksDate" type="text" name="date" onChange={this.handleChange} />
+              </label>
             </div>
             <div>
-              <label for="FeedDucksTime">Time</label>
-              <input id="FeedDucksTime" type="text" name="time" />
+              <label> Time
+                <input value={this.state.formData.time} id="FeedDucksTime" type="text" name="time" onChange={this.handleChange} />
+              </label>
             </div>
             <div>
-              <label for="FeedDucksLocation">Location</label>
-              <input id="FeedDucksLocation" type="text" name="location" />
+              <label>Location
+                <input value={this.state.formData.location} id="FeedDucksLocation" type="text" name="location" onChange={this.handleChange} />
+              </label>
             </div>
             <div>
-              <label for="FeedDucksDuckCount">Number of Ducks Fed</label>
-              <input id="FeedDucksDuckCount" type="number" name="duck_count" step="1" />
+              <label>Number of Ducks Fed
+                <input value={this.state.formData.duck_count} id="FeedDucksDuckCount" type="number" name="duck_count" step="1" min="1" onChange={this.handleChange} />
+              </label>
             </div>
             <div>
-              <label for="FeedDucksFoodAmount">Amount of Food</label>
-              <input id="FeedDucksFoodAmount" type="text" name="food_amount" placeholder="20 grams, 2 slices, etc." />
+              <label>Amount of Food
+                <input value={this.state.formData.food_amount} id="FeedDucksFoodAmount" type="text" name="food_amount" placeholder="20 grams, 2 slices, etc." onChange={this.handleChange} />
+              </label>
             </div>
             <div>
-              <label for="FeedDucksFoodType">Type of Food</label>
-              <input id="FeedDucksFoodType" type="text" name="food_type" placeholder="bread, bird seed, nuts, etc." />
+              <label>Type of Food
+                <input value={this.state.formData.food_type} id="FeedDucksFoodType" type="text" name="food_type" placeholder="bread, bird seed, nuts, etc." onChange={this.handleChange} />
+              </label>
             </div>
             <input type="submit" value="Feed Ducks"/>
           </form>
@@ -63,29 +88,33 @@ class App extends Component {
     );
   }
   
-  addFeeding(event) {
+  addFeeding = (event) => {
     event.preventDefault();
-    var formData = {
-      'date': event.target.date.value
-      , 'time': event.target.time.value
-      , 'location': event.target.location.value
-      , 'duck_count': event.target.duck_count.value
-      , 'food_amount': event.target.food_amount.value
-      , 'food_type': event.target.food_type.value
-    };
     
     fetch( apiEndpoint + 'add-feeding', {
       'method': "POST"
-      , 'body': JSON.stringify(formData)
+      , 'body': JSON.stringify(this.state.formData)
     })
       .then(res => res.text())
-      //catch json parse errors and log them
-      .then(res => { try { return JSON.parse(res) } catch(e) { console.log(e, res); return res; } } )
-      .then(res => {
+      .then(res => { 
+        //catch json parse errors and log them
+        try { 
+          res = JSON.parse(res) 
+        } catch(e) { 
+          console.log(e, res); 
+        }
+        
+        //display form errors on the screen
         if (res.success) {
           console.log('Fed some ducks');
+          if (res.data.duck_count) {
+            this.setState({formErrorMessage: res.message});
+          }
         } else if (res.error && res.message) {
-          this.errorMessage = res.message;
+          this.setState({formErrorMessage: res.message});
+        } else {
+          //a server error ocurred on the api side that caused the JSON response to generate incorrectly
+          this.setState({formErrorMessage: 'Something went wrong with the form submission, please try again later.'});
         }
       });
     
