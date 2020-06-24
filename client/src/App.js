@@ -19,6 +19,11 @@ class App extends Component {
         , food_amount: ''
         , food_type: ''
       }
+      , formFieldErrors: {
+        date: ''
+        , time: ''
+        , duck_count: ''
+      }
     };
     
     this.errorMessage = '';
@@ -37,7 +42,7 @@ class App extends Component {
       .then(res => this.setState({ apiResponse: res}));
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.callAPI();
   }
   
@@ -46,41 +51,46 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <p className="App-intro">
+          <p className="app-intro" id="AppIntro">
             {this.state.apiResponse}
           </p>
           <form id="FeedDucksForm" action="#" onSubmit={this.addFeeding} method="post">
-            <div class="form-error"> {this.state.formErrorMessage}</div>
-            <div>
+            <div className="form-error">{this.state.formErrorMessage}</div>
+            <div className="form-success">{this.state.formSuccessMessage}</div>
+            <div className="input">
               <label> Date
                 <input value={this.state.formData.date} id="FeedDucksDate" type="text" name="date" onChange={this.handleChange} />
+                <div className="field-error">{this.state.formFieldErrors.date}</div>
               </label>
             </div>
-            <div>
+            <div className="input">
               <label> Time
                 <input value={this.state.formData.time} id="FeedDucksTime" type="text" name="time" onChange={this.handleChange} />
+                <div className="field-error">{this.state.formFieldErrors.time}</div>
               </label>
             </div>
-            <div>
+            <div className="input">
               <label>Location
                 <input value={this.state.formData.location} id="FeedDucksLocation" type="text" name="location" onChange={this.handleChange} />
               </label>
             </div>
-            <div>
+            <div className="input">
               <label>Number of Ducks Fed
                 <input value={this.state.formData.duck_count} id="FeedDucksDuckCount" type="number" name="duck_count" step="1" min="1" onChange={this.handleChange} />
+                <div className="field-error">{this.state.formFieldErrors.duck_count}</div>
               </label>
             </div>
-            <div>
+            <div className="input">
               <label>Amount of Food
                 <input value={this.state.formData.food_amount} id="FeedDucksFoodAmount" type="text" name="food_amount" placeholder="20 grams, 2 slices, etc." onChange={this.handleChange} />
               </label>
             </div>
-            <div>
+            <div className="input">
               <label>Type of Food
                 <input value={this.state.formData.food_type} id="FeedDucksFoodType" type="text" name="food_type" placeholder="bread, bird seed, nuts, etc." onChange={this.handleChange} />
               </label>
             </div>
+            <div className="row-splitter"></div>
             <input type="submit" value="Feed Ducks"/>
           </form>
         </header>
@@ -91,9 +101,24 @@ class App extends Component {
   addFeeding = (event) => {
     event.preventDefault();
     
+    this.setState({
+      formSuccessMessage: ''
+      , formErrorMessage: ''
+      , formFieldErrors: {
+        date: ''
+        , time: ''
+        , duck_count: ''
+      }
+      , apiResponse: ""
+    });
+    
     fetch( apiEndpoint + 'add-feeding', {
       'method': "POST"
       , 'body': JSON.stringify(this.state.formData)
+      , 'headers': {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
     })
       .then(res => res.text())
       .then(res => { 
@@ -106,15 +131,18 @@ class App extends Component {
         
         //display form errors on the screen
         if (res.success) {
-          console.log('Fed some ducks');
-          if (res.data.duck_count) {
-            this.setState({formErrorMessage: res.message});
-          }
+          this.setState({
+            formErrorMessage: ''
+            , formSuccessMessage: res.message
+          });
         } else if (res.error && res.message) {
-          this.setState({formErrorMessage: res.message});
+          this.setState({ formErrorMessage: res.message });
+          if (res.errorData) {
+            this.setState({ formFieldErrors: res.errorData.fields });
+          }
         } else {
           //a server error ocurred on the api side that caused the JSON response to generate incorrectly
-          this.setState({formErrorMessage: 'Something went wrong with the form submission, please try again later.'});
+          this.setState({ formErrorMessage: 'Something went wrong with the form submission, please try again later.' });
         }
       });
     

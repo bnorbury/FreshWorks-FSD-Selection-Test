@@ -11,3 +11,53 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 25em;
+  margin: 0 auto;
+}
+
+.input {
+  flex: 1 0 auto;
+  margin: .2em .5em;
+}
+
+.form-success, .form-error {
+  flex: 1 1 100%;
+}
+
+input {
+  font-size: .7em;
+  margin: .25em;
+  padding: .1em .2em;
+  border: 1px solid #61dafb;
+  border-radius: .25em;
+  box-shadow: 2px 2px 4px #00556c;
+}
+
+.row-splitter {
+  flex: 0 0 100%;
+}
+
+input[type="submit"] {
+  background-color: #00556c;
+  color: #fff;
+  border-color: #00556c;
+  font-size: 1em;
+  padding: .25em .4em;
+  cursor: pointer;
+  transition: background .25s;
+}
+
+input[type="submit"]:hover {
+  background-color: #61dafb;
+}
+
+.field-error {
+  font-size: .8em;
+  font-style: italic;
+  color: #abc;
+}
