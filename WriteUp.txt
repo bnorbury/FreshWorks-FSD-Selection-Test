@@ -1,0 +1,4 @@
+I decided to write the program using NodeJS and React since FreshWorks mostly uses those tools for their app development and rarely if ever uses PHP even though I am much more familiar with it.
+I chose MySQL for my database because I am most familiar with it and didn't want to overwhelm myself with too many new technologies in one project.
+Since this is my first major step in Node/React development I decided to start with a tutorial and used the approach that tutorial led me to. I ran into several speed bumps along the way due to the version of node I am running being newer than that of the tutorial but that didn't stop me.
+I spent roughly 3 hours of coding the project and 2 hours of debugging issues that I doubt I would ever encounter if this hadn't been my first foray into the environment.

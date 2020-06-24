@@ -17,30 +17,29 @@ router.get('/', function(req, res, next) {
   //verify the data is valid
   dbcon.connect((err) => {
     if (err) {
-      //res.status('500').send({ error: err, message: err.message });
+      res.send('No ducks have been fed yet.');
       return false;
     }
     
     //save the duck feeding data
     dbcon.query("SELECT duck_count from duck_feedings", (err, results, fields) => {
       if (err) {
-        //res.status('500').send({ error: err, message: err.message });
+        res.send('No ducks have been fed yet.');
         return false;
       }
       
-      results.forEach(element=>{
-        ducksFed += element.duck_feedings;
-      });
-      dbcon.release();
+      for (var i=0;i<results.length;i++){
+        ducksFed += results[i].duck_count;
+      }
+      
+      if ( ducksFed ) {
+        //insert an 's' in the text if the duck count is plural
+        res.send(ducksFed + ' Duck' + ( ducksFed != 1 ? 's' : '') + ' has been fed.');
+      } else {    
+        res.send('No ducks have been fed yet.');
+      }
     });
   });
-  
-  if ( ducksFed ) {
-    //insert an 's' in the text if the duck count is plural
-    res.send(ducksFed + ' Duck' + ( ducksFed != 1 ? 's' : '') + ' has been fed.');
-  } else {    
-    res.send('No ducks have been fed yet.');
-  }
   
 });
 

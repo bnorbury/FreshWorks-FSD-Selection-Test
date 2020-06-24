@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import logo from './duck-logo.png';
 import './App.css';
 
 const apiEndpoint = 'http://localhost:9000/';
 
 class App extends Component {
+  //set default state values here
   constructor(props) {
     super(props);
     var now = new Date();
@@ -12,6 +13,7 @@ class App extends Component {
       apiResponse: ""
       , formErrorMessage: "" 
       , formData: {
+        //default the date and time to now
         date: now.toLocaleDateString('en-GB')
         , time: now.toLocaleTimeString('en-US').replace(/:\d\d /, ' ')
         , location: ''
@@ -42,6 +44,7 @@ class App extends Component {
       .then(res => this.setState({ apiResponse: res}));
   }
 
+  //upon page load get the number of ducks fed from the api
   componentDidMount() {
     this.callAPI();
   }
@@ -101,6 +104,7 @@ class App extends Component {
   addFeeding = (event) => {
     event.preventDefault();
     
+    //reset the state of the form when it's submitted so that the error messages go away
     this.setState({
       formSuccessMessage: ''
       , formErrorMessage: ''
@@ -112,6 +116,7 @@ class App extends Component {
       , apiResponse: ""
     });
     
+    //send the form values to the api
     fetch( apiEndpoint + 'add-feeding', {
       'method': "POST"
       , 'body': JSON.stringify(this.state.formData)
@@ -136,7 +141,9 @@ class App extends Component {
             , formSuccessMessage: res.message
           });
         } else if (res.error && res.message) {
+          //set form error messages
           this.setState({ formErrorMessage: res.message });
+          //set the error messages for the specific fields if there are any
           if (res.errorData) {
             this.setState({ formFieldErrors: res.errorData.fields });
           }
