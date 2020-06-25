@@ -34,7 +34,7 @@ router.get('/', function(req, res, next) {
       
       if ( ducksFed ) {
         //insert an 's' in the text if the duck count is plural
-        res.send(ducksFed + ' Duck' + ( ducksFed != 1 ? 's' : '') + ' has been fed.');
+        res.send(ducksFed + ' Duck' + ( ducksFed != 1 ? 's have' : ' has') + ' been fed.');
       } else {    
         res.send('No ducks have been fed yet.');
       }
